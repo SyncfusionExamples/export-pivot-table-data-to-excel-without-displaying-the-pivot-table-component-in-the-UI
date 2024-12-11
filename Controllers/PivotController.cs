@@ -87,7 +87,7 @@ namespace PivotController.Controllers
             //Reset the memory stream position.
             memoryStream.Position = 0;
             Attachment file = new Attachment(memoryStream, "PivotAttachment.xlsx", "application/xlsx");
-            SendEMail("sridhar.sf3833@gmail.com", "sridhar.sf3833@gmail.com", "Pivot Excel document", "Create Excel MailBody", file);
+            SendEMail("your email", "your email", "Pivot Excel document", "Create Excel MailBody", file);
             return null;
             
         }
@@ -111,7 +111,7 @@ namespace PivotController.Controllers
                 client.UseDefaultCredentials = false;
                 //Update your email credentials here
                 // Need to pass the app password here
-                client.Credentials = new System.Net.NetworkCredential(from, "yxnfvlummriklguq");
+                client.Credentials = new System.Net.NetworkCredential(from, "your-app-password");
                 client.Port = 587;
                 client.EnableSsl = true;
                 client.Send(emailMessage);
