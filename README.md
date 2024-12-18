@@ -3,6 +3,6 @@ This project describes the process of exporting Pivot Table data to Excel withou
 
 The following steps demonstrate how to run the application,
 
-* Open this [PivotController](./PivotController/) application in Visual Studio.
+* Please open this [PivotController](../export-pivot-table-data-to-excel-without-displaying-the-pivot-table-component-in-the-UI/) application in Visual Studio.
 * Dependent packages will be downloaded automatically from the nuget.org site.
 * Run the application once the packages are downloaded.
