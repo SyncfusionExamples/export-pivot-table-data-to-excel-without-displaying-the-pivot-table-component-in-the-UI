@@ -1,5 +1,6 @@
 using PivotController.Controllers;
 using Microsoft.Extensions.DependencyInjection;
+using PivotController.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 var CustomOrigins = "_customOrigins";
@@ -7,7 +8,7 @@ var CustomOrigins = "_customOrigins";
 // Add services to the container.
 builder.Services.AddControllers();
 builder.Services.AddTransient<PivotController.Controllers.PivotController>();
-
+builder.Services.AddHostedService<TimedHostedService>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddCors(options =>
@@ -42,6 +43,6 @@ app.UseCors(CustomOrigins);
 // Trigger the export logic immediately when the application starts
 var scope = app.Services.CreateScope();
 var pivotController = scope.ServiceProvider.GetRequiredService<PivotController.Controllers.PivotController>();
-await pivotController.Post(null); // Optionally, pass necessary args if required
+await pivotController.Post(); // Optionally, pass necessary args if required
 
 app.Run();
