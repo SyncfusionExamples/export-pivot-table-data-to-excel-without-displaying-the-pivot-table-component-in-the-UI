@@ -30,28 +30,57 @@ namespace PivotController.Controllers
         [HttpPost]
         public async Task<object> Post()
         {
-            // Step 1: Bind the pivot report here by constructing JSON data.
-            string parameter = "{\"Action\":\"onRefresh\",\"DataSourceSettings\":{\"allowLabelFilter\":false,\"allowMemberFilter\":true,\"allowValueFilter\":false,\"alwaysShowValueHeader\":false,\"authentication\":{\"password\":\"\",\"userName\":\"\"},\"calculatedFieldSettings\":[],\"catalog\":\"\"," +
-             "\"columns\":[{\"allowDragAndDrop\":true,\"isCalculatedField\":false,\"isNamedSet\":false,\"name\":\"Country\",\"showEditIcon\":true,\"showFilterIcon\":true,\"showNoDataItems\":false,\"showRemoveIcon\":true,\"showSortIcon\":true,\"showSubTotals\":true,\"showValueTypeIcon\":true,\"expandAll\":false,\"type\":\"Sum\"}]," +
-             "\"conditionalFormatSettings\":[],\"cube\":\"\",\"enableServerSideAggregation\":true,\"drilledMembers\":[],\"emptyCellsTextContent\":\"\",\"enableSorting\":true,\"expandAll\":false,\"fieldMapping\":[],\"filterSettings\":[],\"filters\":[],\"formatSettings\":[],\"groupSettings\":[],\"localeIdentifier\":1033,\"providerType\":\"Relational\",\"grandTotalsPosition\":\"Bottom\",\"subTotalsPosition\":\"Auto\",\"roles\":\"\"," +
-             "\"rows\":[{\"allowDragAndDrop\":true,\"isCalculatedField\":false,\"isNamedSet\":false,\"name\":\"ProductID\",\"showEditIcon\":true,\"showFilterIcon\":true,\"showNoDataItems\":false,\"showRemoveIcon\":true,\"showSortIcon\":true,\"showSubTotals\":true,\"showValueTypeIcon\":true,\"expandAll\":false,\"type\":\"Sum\"}]," +
-             "\"showAggregationOnValueField\":true,\"showColumnGrandTotals\":true,\"showColumnSubTotals\":true,\"showGrandTotals\":true,\"showHeaderWhenEmpty\":true,\"showRowGrandTotals\":true,\"showRowSubTotals\":true,\"showSubTotals\":true,\"sortSettings\":[],\"type\":\"JSON\",\"url\":\"https://localhost:44350/api/pivot/post\",\"valueAxis\":\"column\",\"valueSortSettings\":{\"headerDelimiter\":\".\",\"headerText\":\"\",\"measure\":\"\",\"sortOrder\":\"None\"}," +
-             "\"values\":[{\"allowDragAndDrop\":true,\"caption\":\"Price\",\"isCalculatedField\":false,\"isNamedSet\":false,\"name\":\"Price\",\"showEditIcon\":true,\"showFilterIcon\":true,\"showNoDataItems\":false,\"showRemoveIcon\":true,\"showSortIcon\":true,\"showSubTotals\":true,\"showValueTypeIcon\":true,\"expandAll\":false,\"type\":\"Sum\"}," +
-             "{\"allowDragAndDrop\":true,\"caption\":\"Units Sold\",\"isCalculatedField\":false,\"isNamedSet\":false,\"name\":\"Sold\",\"showEditIcon\":true,\"showFilterIcon\":true,\"showNoDataItems\":false,\"showRemoveIcon\":true,\"showSortIcon\":true,\"showSubTotals\":true,\"showValueTypeIcon\":true,\"expandAll\":false,\"type\":\"Sum\"}]}," +
-             "\"InternalProperties\":{\"EnablePaging\":false,\"EnableValueSorting\":true,\"EnableOptimizedRendering\":false,\"EnableVirtualization\":true,\"EnableDrillThrough\":false,\"locale\":\"{\\\"Null\\\":\\\"null\\\",\\\"Years\\\":\\\"Years\\\",\\\"Quarters\\\":\\\"Quarters\\\",\\\"Months\\\":\\\"Months\\\",\\\"Days\\\":\\\"Days\\\",\\\"Hours\\\":\\\"Hours\\\",\\\"Minutes\\\":\\\"Minutes\\\",\\\"Seconds\\\":\\\"Seconds\\\",\\\"QuarterYear\\\":\\\"Quarter Year\\\",\\\"Of\\\":\\\"of\\\",\\\"Qtr\\\":\\\"Qtr\\\",\\\"Undefined\\\":\\\"undefined\\\",\\\"GroupOutOfRange\\\":\\\"Out of Range\\\",\\\"Group\\\":\\\"Group\\\",\\\"GrandTotal\\\":\\\"Grand Total\\\",\\\"Total\\\":\\\"Total\\\"}\"," +
-             "\"PageSettings\":{\"currentColumnPage\":1,\"columnPageSize\":5,\"currentRowPage\":1,\"rowPageSize\":13},\"IsWebAssembly\":false,\"AllowDataCompression\":false}," +
-             "\"Hash\":\"a8016852-2c03-4f01-b7a8-cdbcfd820df1\",\"IsGroupingUpdated\":false,\"ExportAllPages\":true}";
-            // Step 2: Deserialize JSON data to object.
-            FetchData param = JsonConvert.DeserializeObject<FetchData>(parameter);
+            // Step 1: Set up the settings for the Pivot Table report
+            FetchData param = new FetchData
+            {
+                Action = "onRefresh",
+                Hash = "a8016852-2c03-4f01-b7a8-cdbcfd820df1",
+                ExportAllPages = true,
+                DataSourceSettings = new DataOptions
+                {
+                    EnableServerSideAggregation = true,
+                    Rows = new List<FieldOptions>
+                {
+                    new FieldOptions
+                    {
+                        Name = "ProductID",
+                    }
+                },
+                    Columns = new List<FieldOptions>
+                {
+                    new FieldOptions
+                    {
+                        Name = "Country",
+                    }
+                },
+                    Values = new List<FieldOptions>
+                {
+                    new FieldOptions
+                    {
+                        Name = "Price",
+                        Caption = "Price",
+                    },
+                    new FieldOptions
+                    {
+                        Name = "Sold",
+                        Caption = "Units Sold",
+                    }
+                }
+                },
+                InternalProperties = new CustomProperties
+                {
+                    Locale = "{\"Null\":\"null\",\"Years\":\"Years\",\"Quarters\":\"Quarters\",\"Months\":\"Months\",\"Days\":\"Days\",\"Hours\":\"Hours\",\"Minutes\":\"Minutes\",\"Seconds\":\"Seconds\",\"QuarterYear\":\"Quarter Year\",\"Of\":\"of\",\"Qtr\":\"Qtr\",\"Undefined\":\"undefined\",\"GroupOutOfRange\":\"Out of Range\",\"Group\":\"Group\",\"GrandTotal\":\"Grand Total\",\"Total\":\"Total\"}"
+                },
+            };
             PivotEngine.Data = new DataSource.PivotViewData().GetVirtualData();
-            // Pass the configuration to the engine
-            EngineProperties engine = engine = await PivotEngine.GetEngine(param); // Pass deserialized data to the engine
-            // Step 3: Set the action name manually for Excel exporting.
+            // Pass the configuration to the pivot engine to generate the report
+            EngineProperties engine = engine = await PivotEngine.GetEngine(param);
+            // Step 2: Set the action name manually for Excel exporting.
             param.Action = "onExcelExport";
             ExcelEngine excelEngine = new ExcelEngine();
             IApplication application = excelEngine.Excel;
             application.DefaultVersion = ExcelVersion.Xlsx;
-            // Step 4: Initialize new workbook and worksheet.
+            // Step 3: Initialize new workbook and worksheet.
             IWorkbook book = application.Workbooks.Create(1);
             IWorksheet workSheet = book.Worksheets[0];
             // Perform Excel exporting if the action matches
@@ -65,12 +94,12 @@ namespace PivotController.Controllers
                 // Update work sheet with engine data
                 excelExport.UpdateWorkSheet(string.Empty, engine, workSheet); // Here we update the work sheet
             }
-            // Step 5: Save workbook to memory stream
+            // Step 4: Save workbook to memory stream
             MemoryStream memoryStream = new MemoryStream(); // Saved the book as memory stream
             book.SaveAs(memoryStream);
             // Prepare to save the memory stream to a file
             MemoryStream copyOfStreamDoc1 = new MemoryStream(memoryStream.ToArray());
-            // Step 6: Specify the file path and write the memory stream contents to a file
+            // Step 5: Specify the file path and write the memory stream contents to a file
             string filePaths = @"D:\Export\Sample.xlsx";
 
             // Create a FileStream to write the memoryStream contents to a file
